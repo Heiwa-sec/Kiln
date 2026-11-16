@@ -19,7 +19,7 @@ check "no third-party packages" "! grep -q '\\.package(' Package.swift && [ ! -f
 
 echo "== Code"
 check "no try!, as!, fatalError, print or NSLog in the sources" "! grep -rnE 'try!|as!|fatalError|\\bprint\\(|NSLog' Sources App --include='*.swift'"
-check "every subprocess is started with an argument array (no shell)" "! grep -rnE '/bin/(ba|z)?sh|\"-c\"' Sources App --include='*.swift'"
+check "every subprocess is started with an argument array (no shell)" "! grep -rnE '/bin/(ba|z)?sh|\"(ba|z)?sh\"' Sources App --include='*.swift'"
 check "entitlements are only apple-events" "[ \"\$(grep -c '<key>' App/Kiln.entitlements)\" = 1 ] && grep -q automation.apple-events App/Kiln.entitlements"
 
 if [ "$1" != "--fast" ]; then

@@ -76,7 +76,7 @@ import PDFKit
         let s = try Scratch(); defer { s.remove() }
         let evil = try s.rawZip("evil.zip", entries: [("fine.txt", "ok"), ("../escaped.txt", "bad")])
         let e = await kilnError { _ = try await runJob(evil, .zip, .folder) }
-        #expect(e == .unsafeArchive("evil.zip"))
+        #expect(e == .unsafeInput("evil.zip"))
         #expect(!FileManager.default.fileExists(atPath: s.dir.deletingLastPathComponent().appendingPathComponent("escaped.txt").path))
         #expect(!FileManager.default.fileExists(atPath: s.file("escaped.txt").path))
         #expect(!FileManager.default.fileExists(atPath: s.file("evil").path))   // no half-extracted folder left

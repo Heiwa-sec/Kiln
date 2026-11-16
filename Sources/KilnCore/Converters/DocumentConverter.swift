@@ -8,12 +8,19 @@ struct DocumentConverter: Converter {
     func convert(input: URL, key: ConversionKey, output: Output, progress: @Sendable (Double) -> Void) async throws {
         // NSAttributedString isn't Sendable and its HTML import runs WebKit, so read and write on the main actor.
         let name = input.lastPathComponent
+        if key.input == .rtfd { if Self.hasSymlink(input) { throw KilnError.unsafeInput(name) } } else { try Limits.checkText(input) }
         let out = try output.url(ext: key.output.ext)
         try await MainActor.run {
             let text: NSAttributedString
             do { text = try Self.read(input, as: key.input) } catch { throw KilnError.corruptInput(name) }
             try Self.write(text, to: out, as: key.output)
         }
+    }
+
+    /// An RTFD package is a folder. A link inside it could pull a file from elsewhere on the disk into the result.
+    static func hasSymlink(_ folder: URL) -> Bool {
+        guard let e = FileManager.default.enumerator(at: folder, includingPropertiesForKeys: [.isSymbolicLinkKey]) else { return false }
+        return e.contains { ((try? ($0 as? URL)?.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink) ?? false) == true }
     }
 
     @MainActor static func read(_ url: URL, as f: Format) throws -> NSAttributedString {

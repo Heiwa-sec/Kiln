@@ -19,7 +19,10 @@ struct PdfConverter: Converter {
             let type = key.output == .png ? UTType.png : UTType.jpeg
             for i in 0..<doc.pageCount {
                 try Task.checkCancellation()
-                guard let page = doc.page(at: i), let image = Self.render(page, dpi: CGFloat(output.options.pdfDPI)) else { throw KilnError.corruptInput(name) }
+                guard let page = doc.page(at: i) else { throw KilnError.corruptInput(name) }
+                let box = page.bounds(for: .mediaBox), scale = Double(output.options.pdfDPI) / 72
+                if box.width * scale * box.height * scale > Double(Limits.imagePixels) { throw KilnError.tooLarge(name) }
+                guard let image = Self.render(page, dpi: CGFloat(output.options.pdfDPI)) else { throw KilnError.corruptInput(name) }
                 let file = folder.appendingPathComponent(String(format: "page-%03d.%@", i + 1, key.output.ext))
                 guard let dest = CGImageDestinationCreateWithURL(file as CFURL, type.identifier as CFString, 1, nil)
                 else { throw KilnError.io("can't write \(file.lastPathComponent)") }

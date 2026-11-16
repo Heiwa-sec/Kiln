@@ -4,6 +4,7 @@ struct TableConverter: Converter {
     let pairs = [ConversionKey(.csv, .tsv), ConversionKey(.tsv, .csv)]
 
     func convert(input: URL, key: ConversionKey, output: Output, progress: @Sendable (Double) -> Void) async throws {
+        try Limits.checkText(input)
         guard let raw = try? String(contentsOf: input, encoding: .utf8) else { throw KilnError.corruptInput(input.lastPathComponent) }
         let rows = Self.parse(raw, delimiter: key.input == .csv ? "," : "\t")
         let out = Self.write(rows, delimiter: key.output == .csv ? "," : "\t")

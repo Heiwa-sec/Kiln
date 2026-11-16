@@ -6,6 +6,7 @@ struct SubtitleConverter: Converter {
     struct Cue: Equatable { var start: String; var end: String; var text: String }
 
     func convert(input: URL, key: ConversionKey, output: Output, progress: @Sendable (Double) -> Void) async throws {
+        try Limits.checkText(input)
         guard let raw = try? String(contentsOf: input, encoding: .utf8) else { throw KilnError.corruptInput(input.lastPathComponent) }
         let cues = Self.parse(raw)
         guard !cues.isEmpty else { throw KilnError.corruptInput(input.lastPathComponent) }

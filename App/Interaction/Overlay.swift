@@ -21,7 +21,7 @@ final class DropView: NSView {
         host.frame = bounds; host.autoresizingMask = [.width, .height]
         addSubview(host)
     }
-    required init?(coder: NSCoder) { fatalError("DropView is created in code") }
+    required init?(coder: NSCoder) { nil }
 
     /// Point the model at the drag, and say whether a drop here would do anything.
     private func track(_ s: NSDraggingInfo) -> NSDragOperation {

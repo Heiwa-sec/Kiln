@@ -10,7 +10,8 @@ struct ArchiveCreator: Converter {
         // gzip keeps the full original name ("note.txt.gz"), like the real tool, so extracting restores it.
         let out = try output.url(ext: key.output.ext, suffix: key.output == .gz && !input.pathExtension.isEmpty ? "." + input.pathExtension : "")
         switch key.output {
-        case .zip: try await Run.exec("/usr/bin/zip", ["-r", "-q", out.path, name], cwd: parent)
+        // zip -y stores symlinks as links instead of following them into other folders.
+        case .zip: try await Run.exec("/usr/bin/zip", ["-r", "-y", "-q", out.path, name], cwd: parent)
         case .tar: try await Run.exec("/usr/bin/tar", ["-cf", out.path, "-C", parent.path, name])
         case .gz:
             guard !isDir else { throw KilnError.unsupportedPair(key) }
@@ -35,7 +36,7 @@ struct ArchiveExtractor: Converter {
         // List first: refuse anything that could land outside the folder ("zip slip"). bsdtar reads zip and tar.
         let listing: String
         do { listing = try await Run.exec("/usr/bin/tar", ["-tf", input.path]) } catch is Run.Failure { throw KilnError.corruptInput(name) }
-        if listing.split(separator: "\n").contains(where: { Self.escapes(String($0)) }) { throw KilnError.unsafeArchive(name) }
+        if listing.split(separator: "\n").contains(where: { Self.escapes(String($0)) }) { throw KilnError.unsafeInput(name) }
         let folder = try output.folder(suffix: "")
         do { try await Run.exec("/usr/bin/tar", ["-xf", input.path, "-C", folder.path]) } catch is Run.Failure { throw KilnError.corruptInput(name) }
     }

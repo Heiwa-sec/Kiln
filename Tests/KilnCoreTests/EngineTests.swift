@@ -42,7 +42,7 @@ import Foundation
     @Test func unknownBecomesIO() { if case .io = KilnError.from(NSError(domain: "X", code: 9)) {} else { Issue.record("expected .io") } }
     @Test func everyCaseHasADistinctMessage() {
         let all: [KilnError] = [.unsupportedPair(ConversionKey(.png, .docx)), .corruptInput("a.png"), .nameCollision("a.png"),
-                                .diskFull, .cancelled, .encryptedPDF("a.pdf"), .needsFFmpeg, .unsafeArchive("a.zip"), .io("x")]
+                                .diskFull, .cancelled, .encryptedPDF("a.pdf"), .needsFFmpeg, .unsafeInput("a.zip"), .tooLarge("a.pdf"), .io("x")]
         #expect(Set(all.map(\.message)).count == all.count)
     }
 }

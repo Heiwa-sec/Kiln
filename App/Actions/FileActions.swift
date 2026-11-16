@@ -96,7 +96,7 @@ final class FloatView: NSView, NSDraggingSource {
             if let img = rep?.nsImage { DispatchQueue.main.async { self?.image.image = img } }
         }
     }
-    required init?(coder: NSCoder) { fatalError() }
+    required init?(coder: NSCoder) { nil }
 
     func draggingSession(_ s: NSDraggingSession, sourceOperationMaskFor c: NSDraggingContext) -> NSDragOperation { .copy }
     override func mouseDown(with e: NSEvent) { downAt = e.locationInWindow; if e.clickCount == 2 { owner.close() } }

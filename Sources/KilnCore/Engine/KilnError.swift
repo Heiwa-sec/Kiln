@@ -8,7 +8,8 @@ public enum KilnError: Error, Equatable, Sendable {
     case cancelled
     case encryptedPDF(String)
     case needsFFmpeg
-    case unsafeArchive(String)
+    case unsafeInput(String)
+    case tooLarge(String)
     case io(String)
 
     public var message: String {
@@ -19,7 +20,8 @@ public enum KilnError: Error, Equatable, Sendable {
         case .diskFull: "The disk is full. Free some space and try again. Any partial output was removed."
         case .cancelled: "Cancelled. Any partial output was removed."
         case .encryptedPDF(let n): "\u{201C}\(n)\u{201D} is password-protected. Remove the password first, then convert it."
-        case .unsafeArchive(let n): "\u{201C}\(n)\u{201D} contains paths that would write outside the output folder, so it was not extracted."
+        case .unsafeInput(let n): "\u{201C}\(n)\u{201D} contains links or paths that lead outside itself, so Kiln did not process it."
+        case .tooLarge(let n): "\u{201C}\(n)\u{201D} is too big for Kiln to handle safely. Try a smaller file or fewer pages."
         case .needsFFmpeg: "This conversion needs ffmpeg. Install it (for example with Homebrew) and Kiln will use it."
         case .io(let m): "Something went wrong: \(m)"
         }

@@ -109,3 +109,46 @@ import CoreGraphics
         #expect(Limits.tooManyPixels(Int.max, Int.max)); #expect(Limits.tooManyPixels(20000, 20000)); #expect(!Limits.tooManyPixels(4000, 3000))
     }
 }
+
+/// Findings from the security review, each pinned by a test.
+@Suite struct ReviewFixTests {
+    /// A dangling symlink looks like a free name to fileExists, but every writer would follow it and create the target.
+    @Test func aDanglingSymlinkIsATakenName() async throws {
+        let s = try Scratch(); defer { s.remove() }
+        let victim = s.file("victim.out")
+        try FileManager.default.createSymbolicLink(atPath: s.file("x.tar").path, withDestinationPath: victim.path)
+        let tar = try await runJob(try s.text("x.txt", "payload"), .txt, .tar)[0]
+        #expect(tar.lastPathComponent == "x 2.tar")
+        #expect(!FileManager.default.fileExists(atPath: victim.path), "the archive was written through the link")
+    }
+
+    @Test func imageOutputsDoNotFollowADanglingLinkEither() async throws {
+        let s = try Scratch(); defer { s.remove() }
+        let victim = s.file("victim.jpg")
+        try FileManager.default.createSymbolicLink(atPath: s.file("a.jpg").path, withDestinationPath: victim.path)
+        let out = try await runJob(try s.png("a.png"), .png, .jpg)[0]
+        #expect(out.lastPathComponent == "a 2.jpg")
+        #expect(!FileManager.default.fileExists(atPath: victim.path))
+    }
+
+    /// Extracted files should stay quarantined when the archive was, like Finder's Archive Utility does.
+    @Test func extractedFilesInheritTheArchivesQuarantineFlag() async throws {
+        let s = try Scratch(); defer { s.remove() }
+        let f = s.file("pkg"); try FileManager.default.createDirectory(at: f.appendingPathComponent("inner"), withIntermediateDirectories: true)
+        try "x".write(to: f.appendingPathComponent("inner/tool.command"), atomically: true, encoding: .utf8)
+        let zip = try await runJob(f, .folder, .zip)[0]
+        let flag = Array("0083;5f000000;Safari;".utf8)
+        #expect(setxattr(zip.path, "com.apple.quarantine", flag, flag.count, 0, 0) == 0)
+        let out = try await runJob(zip, .zip, .folder)[0]
+        for rel in ["pkg", "pkg/inner", "pkg/inner/tool.command"] {
+            let size = getxattr(out.appendingPathComponent(rel).path, "com.apple.quarantine", nil, 0, 0, XATTR_NOFOLLOW)
+            #expect(size > 0, "\(rel) lost the quarantine flag")
+        }
+    }
+
+    @Test func archivePathCheckWorksOnBytesNotCharacters() {
+        #expect(ArchiveExtractor.escapes("/\u{301}etc/x"))        // a leading "/" with a combining mark is still absolute
+        #expect(ArchiveExtractor.escapes("a/..\u{0}/../b") || ArchiveExtractor.escapes("a/../b"))
+        #expect(ArchiveExtractor.escapes("a/b/../../c")); #expect(!ArchiveExtractor.escapes("a/b..c/d")); #expect(!ArchiveExtractor.escapes("./a/b"))
+    }
+}

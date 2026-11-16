@@ -41,7 +41,9 @@ struct ArchiveExtractor: Converter {
         do { try await Run.exec("/usr/bin/tar", ["-xf", input.path, "-C", folder.path]) } catch is Run.Failure { throw KilnError.corruptInput(name) }
     }
 
+    /// Judged on bytes: a Swift Character can glue a combining mark to a "/" and hide it from a string comparison.
     static func escapes(_ entry: String) -> Bool {
-        entry.hasPrefix("/") || entry.split(separator: "/", omittingEmptySubsequences: false).contains("..")
+        let bytes = Array(entry.utf8)
+        return bytes.first == 0x2F || bytes.split(separator: 0x2F, omittingEmptySubsequences: false).contains { $0.elementsEqual([0x2E, 0x2E]) }
     }
 }

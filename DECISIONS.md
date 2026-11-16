@@ -53,3 +53,7 @@ Every UNKNOWN or open choice, resolved. Format: question, choice, one-line reaso
 - D19: Sound feedback defaults off and haptics on (revisits U17: silence is still the default, but sound is now an option, using system sounds only).
 - D20: Lossy image outputs (JPG, HEIC, AVIF) default to quality 0.75 ("Balanced"). "Show Desktop results in Finder" became "Show finished files in Finder" for all results, off by default.
 - D21: Settings are applied at job start. A job already running keeps the options it started with.
+- D22: An output name counts as taken if anything is there, a dangling symlink included, and names are claimed across all running jobs. Reason: a link beside the input would otherwise be written through, and two same-name files dropped together would overwrite each other. Both are tested.
+- D23: Archive extraction checks entry names on bytes before extracting, and relies on bsdtar refusing links and `..` paths. The quarantine flag of a downloaded archive is carried onto the extracted files by macOS tar (tested), so Gatekeeper still applies.
+- D24: Copy Path writes any name containing control characters as `$'...'` with `\xHH` escapes, so pasting can never feed the terminal raw escape sequences.
+- D25: Many files dropped at once all start together; there is no queue. Size caps look at the file on disk, not its expanded size. Both are accepted limits for a personal tool and are listed in the README.

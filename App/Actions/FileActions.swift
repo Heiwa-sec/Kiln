@@ -46,7 +46,7 @@ import KilnCore
         guard let dest else { return }
         for f in files {
             do {
-                let target = try Naming.resolve(directory: dest, stem: f.deletingPathExtension().lastPathComponent, ext: f.pathExtension, rule: .suffix) { FileManager.default.fileExists(atPath: $0.path) }
+                let target = try Naming.resolve(directory: dest, stem: f.deletingPathExtension().lastPathComponent, ext: f.pathExtension, rule: .suffix, exists: Naming.taken)
                 try FileManager.default.moveItem(at: f, to: target)
                 jobs.note("Moved \(f.lastPathComponent) to \(dest.lastPathComponent)")
             } catch { jobs.rows.append(.init(title: f.lastPathComponent, state: .failed(KilnError.from(error, file: f.lastPathComponent).message))) }

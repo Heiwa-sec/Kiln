@@ -3,6 +3,10 @@ import Foundation
 public enum CollisionRule: String, Sendable { case suffix, fail }
 
 public enum Naming {
+    /// True when anything is at the path, a dangling symlink included. `fileExists` follows links and would call a
+    /// dangling link "free", and every writer would then follow it and create the file the link points at.
+    public static func taken(_ url: URL) -> Bool { (try? FileManager.default.attributesOfItem(atPath: url.path)) != nil }
+
     /// "stem.ext", then "stem 2.ext", "stem 3.ext"... Never overwrites.
     public static func resolve(directory: URL, stem: String, ext: String, rule: CollisionRule,
                                exists: (URL) -> Bool) throws -> URL {
@@ -37,7 +41,7 @@ public final class Output: @unchecked Sendable {
     public let options: ConversionOptions
 
     public init(directory: URL, stem: String, rule: CollisionRule, options: ConversionOptions = .standard,
-                exists: @escaping @Sendable (URL) -> Bool = { FileManager.default.fileExists(atPath: $0.path) }) {
+                exists: @escaping @Sendable (URL) -> Bool = { Naming.taken($0) }) {
         self.directory = directory; self.stem = stem; self.rule = rule; self.options = options; self.exists = exists
     }
 

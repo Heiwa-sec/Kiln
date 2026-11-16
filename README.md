@@ -39,6 +39,15 @@ Not supported, and shown as unsupported rather than faked: slides, XLSX/ODS, EPU
 
 **Optional ffmpeg.** If you have ffmpeg (for example `brew install ffmpeg`), Kiln finds it in the usual places and enables MP3, Ogg, Opus, WebM, MKV, AVI and WMV pairs. Kiln never bundles, downloads or commits ffmpeg or its codecs. This path is tested only against a stand-in script, not a real ffmpeg.
 
+## Known limits
+
+- Dropping many files at once starts every job together; there is no queue, so very large batches (hundreds of videos) will be slow and memory-hungry.
+- Size caps (100 MB for text-like files, 200 megapixels for images and PDF pages) apply to what is on disk, not to what a compressed file expands to.
+- Markdown is converted with inline formatting only (bold, italic, links). Headings and lists stay as plain text.
+- PDF to TXT or MD needs selectable text. A scanned PDF gives an error, because Kiln has no text recognition.
+- Animated GIFs convert as their first frame.
+- The optional ffmpeg path has only been tested against a stand-in script, never a real ffmpeg.
+
 ## Requirements
 
 Apple silicon, macOS 13 or later. Built with Xcode 27.2 and Swift 6.4; older versions are untested. Building needs Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`).

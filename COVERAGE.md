@@ -4,7 +4,7 @@ Every requirement in the design brief (kept out of this repo, cited here by sect
 
 **Status key.** TESTED: a unit test runs it. SEEN: watched working in a short scripted run, not repeatable by test. UNTESTED: built, never run. NOT IMPLEMENTED: with a reason. N/A: not needed for a personal open-source app.
 
-Counts as of this commit: 85 unit tests pass (`swift test`); the app builds (`xcodebuild`); the registry reports 126 supported conversion pairs on the build Mac.
+Counts as of this commit: 100 unit tests pass (`swift test`); the app builds (`xcodebuild`); the registry reports 126 supported conversion pairs on the build Mac.
 
 ## §1 Product summary
 

@@ -5,7 +5,7 @@ Run this by hand. The wheel, keyboard and file-action behavior has only been exe
 Use copies of throwaway files. Kiln writes next to the original, so work in a scratch folder.
 
 ## 0. Setup
-- [ ] `swift test` passes (85 tests at last count).
+- [ ] `swift test` passes (100 tests at last count).
 - [ ] Build and open the app as in README. A flame icon appears in the menu bar and no Dock icon appears.
 - [ ] Quit any other app that also reacts to drags with a modifier, so two wheels don't open.
 - [ ] Make a scratch folder with: a PNG, a JPG with GPS data (a phone photo copy), a two-page PDF, a password-protected PDF, a WAV or MP3, a short MP4 or MOV, a TXT, a folder with two files, and a text file renamed to `broken.png`.

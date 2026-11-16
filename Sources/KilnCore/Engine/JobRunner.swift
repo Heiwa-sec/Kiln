@@ -41,6 +41,7 @@ public struct JobRunner: Sendable {
     /// Runs `work` with cancellation checks around it. A failed or cancelled job deletes what it wrote.
     private static func guarded(_ first: URL, _ output: Output, progress: @Sendable (Double) -> Void,
                                 _ work: () async throws -> Void) async throws -> [URL] {
+        defer { output.release() }
         do {
             try Task.checkCancellation()
             try await work()

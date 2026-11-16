@@ -71,3 +71,41 @@ import CoreGraphics
         #expect(e == .unsafeInput("note.rtfd"))
     }
 }
+
+/// Bugs found in the audit, each pinned by a test that failed before the fix.
+@Suite struct AuditFixTests {
+    @Test func twoJobsWithTheSameStemNeverShareAnOutputName() async throws {
+        let s = try Scratch(); defer { s.remove() }
+        let png = try s.png("a.png", w: 300, h: 300)
+        let side = s.file("side"); try FileManager.default.createDirectory(at: side, withIntermediateDirectories: true)
+        let tiff = try await runJob(png, .png, .tiff, policy: .init(location: .folder(side)))[0]
+        let moved = s.file("a.tiff"); try FileManager.default.moveItem(at: tiff, to: moved)
+        for _ in 0..<5 {
+            async let j1 = runJob(png, .png, .jpg)
+            async let j2 = runJob(moved, .tiff, .jpg)
+            let (r1, r2) = try await (j1, j2)
+            #expect(r1[0] != r2[0], "both jobs wrote \(r1[0].lastPathComponent)")
+            #expect(FileManager.default.fileExists(atPath: r1[0].path) && FileManager.default.fileExists(atPath: r2[0].path))
+            for u in r1 + r2 { try FileManager.default.removeItem(at: u) }
+        }
+    }
+
+    @Test func aLoneCarriageReturnEndsARow() async throws {
+        let s = try Scratch(); defer { s.remove() }
+        let r = try await runJob(try s.text("old.csv", "a,b\rc,d\r"), .csv, .tsv)[0]
+        #expect(try String(contentsOf: r, encoding: .utf8) == "a\tb\nc\td\n")
+    }
+
+    @Test func aPDFWithoutTextSaysSoInsteadOfWritingAnEmptyFile() async throws {
+        let s = try Scratch(); defer { s.remove() }
+        let url = s.file("scan.pdf"); var box = CGRect(x: 0, y: 0, width: 200, height: 100)
+        let ctx = CGContext(url as CFURL, mediaBox: &box, nil)!; ctx.beginPDFPage(nil); ctx.endPDFPage(); ctx.closePDF()
+        let e = await kilnError { _ = try await runJob(url, .pdf, .txt) }
+        if case .io(let m)? = e { #expect(m.contains("no selectable text")) } else { Issue.record("got \(String(describing: e))") }
+        #expect(!FileManager.default.fileExists(atPath: s.file("scan.txt").path))
+    }
+
+    @Test func pixelMathCannotOverflow() {
+        #expect(Limits.tooManyPixels(Int.max, Int.max)); #expect(Limits.tooManyPixels(20000, 20000)); #expect(!Limits.tooManyPixels(4000, 3000))
+    }
+}

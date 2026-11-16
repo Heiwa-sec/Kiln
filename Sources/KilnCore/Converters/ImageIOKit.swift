@@ -17,7 +17,9 @@ enum ImageIOKit {
     static func source(_ url: URL) throws -> CGImageSource {
         guard let s = CGImageSourceCreateWithURL(url as CFURL, nil), CGImageSourceGetCount(s) > 0 else { throw KilnError.corruptInput(url.lastPathComponent) }
         let p = properties(s)
-        if (p[kCGImagePropertyPixelWidth] as? Int ?? 0) * (p[kCGImagePropertyPixelHeight] as? Int ?? 0) > Limits.imagePixels { throw KilnError.tooLarge(url.lastPathComponent) }
+        guard let w = p[kCGImagePropertyPixelWidth] as? Int, let h = p[kCGImagePropertyPixelHeight] as? Int, w > 0, h > 0
+        else { throw KilnError.corruptInput(url.lastPathComponent) }
+        if Limits.tooManyPixels(w, h) { throw KilnError.tooLarge(url.lastPathComponent) }
         return s
     }
 

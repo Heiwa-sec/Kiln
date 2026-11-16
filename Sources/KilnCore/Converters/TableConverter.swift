@@ -23,7 +23,7 @@ struct TableConverter: Converter {
                 else { field.append(c) }
             } else if c == "\"" { quoted = true }
             else if c == delimiter { row.append(field); field = "" }
-            else if c == "\n" || c == "\r\n" { row.append(field); rows.append(row); row = []; field = "" } // "\r\n" is one Character in Swift
+            else if c == "\n" || c == "\r" || c == "\r\n" { row.append(field); rows.append(row); row = []; field = "" } // "\r\n" is one Character in Swift; a lone "\r" is the old Mac line ending
             else { field.append(c) }
             i += 1
         }

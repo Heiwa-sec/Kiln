@@ -18,6 +18,14 @@ public enum Naming {
     }
 }
 
+/// Names claimed by jobs that are still running. Without this, two jobs in one folder (a.png and a.tiff both to JPG)
+/// would each see "a.jpg" as free and the second would overwrite the first.
+private final class InFlight: @unchecked Sendable {
+    static let shared = InFlight()
+    let lock = NSLock()
+    var paths = Set<String>()
+}
+
 /// Where one job writes. Tracks everything it created so a failed or cancelled job can clean up.
 public final class Output: @unchecked Sendable {
     public let directory: URL
@@ -36,11 +44,19 @@ public final class Output: @unchecked Sendable {
     /// A free file URL. Not created yet; removed on failure if the converter wrote it.
     public func url(ext: String, suffix: String = "") throws -> URL {
         lock.lock(); defer { lock.unlock() }
-        let u = try Naming.resolve(directory: directory, stem: stem + suffix, ext: ext, rule: rule) { [reserved, exists] in
-            reserved.contains($0) || exists($0)
+        InFlight.shared.lock.lock(); defer { InFlight.shared.lock.unlock() }   // check and claim as one step across all jobs
+        let u = try Naming.resolve(directory: directory, stem: stem + suffix, ext: ext, rule: rule) { [exists] in
+            InFlight.shared.paths.contains($0.path) || exists($0)
         }
         reserved.append(u)
+        InFlight.shared.paths.insert(u.path)
         return u
+    }
+
+    /// Call when the job is over: the files now exist, so the claim is no longer needed.
+    public func release() {
+        lock.lock(); let mine = reserved; lock.unlock()
+        InFlight.shared.lock.lock(); mine.forEach { InFlight.shared.paths.remove($0.path) }; InFlight.shared.lock.unlock()
     }
 
     /// A free folder URL, created.

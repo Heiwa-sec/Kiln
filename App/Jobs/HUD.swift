@@ -6,7 +6,8 @@ struct HUDView: View {
     @ObservedObject var jobs: JobCenter
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ForEach(jobs.rows) { row in
+            if jobs.rows.count > 6 { Text("\(jobs.rows.count - 6) earlier items hidden").font(.system(size: 11)).foregroundStyle(Palette.textDim) }
+            ForEach(jobs.rows.suffix(6)) { row in
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Text(row.title).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)

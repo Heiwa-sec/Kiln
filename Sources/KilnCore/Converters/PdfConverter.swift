@@ -12,6 +12,9 @@ struct PdfConverter: Converter {
         switch key.output {
         case .txt, .md:
             let pages = (0..<doc.pageCount).map { doc.page(at: $0)?.string ?? "" }
+            if pages.allSatisfy({ $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) {
+                throw KilnError.io("\u{201C}\(name)\u{201D} has no selectable text. It may be a scan: Kiln can't read text from pictures.")
+            }
             let sep = key.output == .md ? "\n\n---\n\n" : "\n\n"
             try pages.joined(separator: sep).write(to: output.url(ext: key.output.ext), atomically: true, encoding: .utf8)
         default: // png, jpg: every page, 300 DPI, into a folder

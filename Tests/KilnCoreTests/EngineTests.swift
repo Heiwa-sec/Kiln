@@ -127,7 +127,7 @@ struct Stub: Converter {
 
 @Suite struct ShellQuoteTests {
     static let nasty = ["/tmp/plain.png", "/tmp/with space.png", "/tmp/a;touch pwned", "/tmp/$(id).png", "/tmp/`id`", "/tmp/it's.png",
-                        "/tmp/a\nb.png", "/tmp/a|b&c>d<e", "/tmp/*?[x]", "/tmp/~#!.png", "/tmp/back\\slash", "/tmp/\"dq\"", "/tmp/émoji 🔥.png", "-rf", "", "/tmp/esc\u{1B}[201~x", "/tmp/cr\rx", "/tmp/^u\u{15}x", "/tmp/del\u{7F}x", "/tmp/it's\u{1B}[0m\n"]
+                        "/tmp/a\nb.png", "/tmp/a|b&c>d<e", "/tmp/*?[x]", "/tmp/~#!.png", "/tmp/back\\slash", "/tmp/\"dq\"", "/tmp/émoji 🔥.png", "-rf", "", "/tmp/esc\u{1B}[201~x", "/tmp/cr\rx", "/tmp/^u\u{15}x", "/tmp/del\u{7F}x", "/tmp/c1\u{85}x", "/tmp/csi\u{9B}31mx", "/tmp/q'\u{1B}'; touch pwned; '", "/tmp/bs\\\u{1B}", "/tmp/it's\u{1B}[0m\n"]
 
     @Test func safePathsAreLeftAlone() { #expect(ShellQuote.quote("/Users/a/b-c_d.png") == "/Users/a/b-c_d.png") }
 
@@ -143,7 +143,8 @@ struct Stub: Converter {
     @Test func noRawControlCharacterSurvivesInTheQuotedText() {
         for name in Self.nasty {
             let q = ShellQuote.quote(name)
-            #expect(!q.unicodeScalars.contains { $0.value < 0x20 || $0.value == 0x7F }, "raw control character in \(q.debugDescription)")
+            #expect(!q.unicodeScalars.contains { $0.value < 0x20 || (0x7F...0x9F).contains($0.value) }, "raw control character in \(q.debugDescription)")
+            if q.hasPrefix("$'") { #expect(q.filter { $0 == "'" }.count == 2, "a quote besides the delimiters in \(q)") }
         }
     }
 

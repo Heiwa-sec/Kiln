@@ -1,0 +1,40 @@
+name: Kiln
+options:
+  bundleIdPrefix: dev.kiln
+  deploymentTarget:
+    macOS: "13.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO   # keeps get-task-allow (debugger attach) out of builds
+    ARCHS: arm64
+packages:
+  KilnCore:
+    path: .
+targets:
+  Kiln:
+    type: application
+    platform: macOS
+    sources: [App]
+    dependencies:
+      - package: KilnCore
+    entitlements:
+      path: App/Kiln.entitlements
+      properties:
+        com.apple.security.automation.apple-events: true
+    info:
+      path: App/Info.plist
+      properties:
+        LSUIElement: true
+        CFBundleName: Kiln
+        CFBundleShortVersionString: "0.1.0"
+        LSMinimumSystemVersion: "13.0"
+        NSAppleEventsUsageDescription: "Kiln reads which files are selected in Finder so the keyboard menu can act on them. Nothing else in Finder is touched."
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.kiln.Kiln
+        ENABLE_APP_SANDBOX: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

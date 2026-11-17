@@ -50,13 +50,32 @@ Not supported, and shown as unsupported rather than faked: slides, XLSX/ODS, EPU
 
 ## Install
 
-Paste this in Terminal. It downloads the latest release, checks its checksum and puts Kiln.app in Applications. macOS then shows its usual check for apps downloaded from the internet when Kiln first opens:
+Two ways to install the same app (Kiln 0.1.0, Apple silicon, macOS 13 or later). Pick one.
+
+### Option 1: Terminal (one line)
+
+Open Terminal (Spotlight, type "Terminal"), paste this and press Return:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/Heiwa-sec/Kiln/main/scripts/install.sh | bash
 ```
 
-Run it again to update. To remove Kiln, quit it from the menu bar and delete `/Applications/Kiln.app`. You can also download `Kiln.zip` from the Releases page. Because the app is not notarized, macOS says it could not verify Kiln (either way): open System Settings, Privacy & Security, and choose Open Anyway once.
+What it does, in order: checks you have an Apple silicon Mac on macOS 13 or later; downloads `Kiln.zip` and its checksum from the [latest release](https://github.com/Heiwa-sec/Kiln/releases/latest); stops if the checksum or the app signature is wrong; quits any running Kiln; replaces `/Applications/Kiln.app` (or `~/Applications` if `/Applications` is not writable); marks the app as downloaded from the internet; opens it. It changes nothing else on your Mac. You can read it first: [scripts/install.sh](scripts/install.sh).
+
+### Option 2: App download (disk image)
+
+1. Download `Kiln.dmg` from the [latest release](https://github.com/Heiwa-sec/Kiln/releases/latest).
+2. Open it. A window shows the Kiln app and an Applications folder.
+3. Drag Kiln onto Applications, then eject the disk image.
+4. Open Kiln from Applications (or Spotlight).
+
+### First open (both options)
+
+Kiln is not notarized, so macOS blocks the first launch with "Kiln Not Opened: Apple could not verify Kiln is free of malware". Click Done, open System Settings, Privacy & Security, scroll to the message about Kiln, click Open Anyway and confirm. This is needed once per installed build. Kiln then appears as an icon in the menu bar.
+
+### Update and remove
+
+To update, run the Terminal line again or drag the new Kiln over the old one. macOS may ask you to grant permissions again after an update. To remove Kiln, quit it from the menu bar icon and delete `/Applications/Kiln.app`; `defaults delete dev.kiln.Kiln` also clears its settings.
 
 ## Requirements
 

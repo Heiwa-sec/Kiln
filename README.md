@@ -48,9 +48,19 @@ Not supported, and shown as unsupported rather than faked: slides, XLSX/ODS, EPU
 - Animated GIFs convert as their first frame.
 - The optional ffmpeg path has only been tested against a stand-in script, never a real ffmpeg.
 
+## Install
+
+Paste this in Terminal. It downloads the latest release, checks its checksum, puts Kiln.app in Applications and opens it:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Heiwa-sec/Kiln/main/scripts/install.sh | bash
+```
+
+Run it again to update. To remove Kiln, quit it from the menu bar and delete `/Applications/Kiln.app`. You can also download `Kiln.zip` from the Releases page; because the app is not notarized, macOS will then ask you to allow it in System Settings, which the one-line install avoids.
+
 ## Requirements
 
-Apple silicon, macOS 13 or later. Built with Xcode 27.2 and Swift 6.4; older versions are untested. Building needs Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`).
+Apple silicon, macOS 13 or later. Built with Xcode 27.2 and Swift 6.4; older versions are untested. Building from source needs Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`).
 
 ## Build
 

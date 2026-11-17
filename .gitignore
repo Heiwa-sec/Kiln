@@ -7,3 +7,4 @@ DerivedData/
 .env*
 xcuserdata/
 .scratch/
+dist/

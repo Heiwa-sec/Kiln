@@ -21,6 +21,7 @@ DEST=/Applications
 pkill -x Kiln 2>/dev/null && sleep 1 || true   # a running copy would keep the old build alive
 rm -rf "$DEST/Kiln.app"
 ditto "$tmp/x/Kiln.app" "$DEST/Kiln.app"
-xattr -dr com.apple.quarantine "$DEST/Kiln.app" 2>/dev/null || true
+# curl sets no quarantine flag, so add the one a browser download gets: macOS then shows its normal "downloaded from the internet" check
+xattr -w com.apple.quarantine "0083;$(printf %x "$(date +%s)");Kiln installer;" "$DEST/Kiln.app"
 open "$DEST/Kiln.app"
-echo "Installed Kiln in $DEST and opened it. Look for its icon in the menu bar."
+echo "Installed Kiln in $DEST. macOS will ask you to confirm opening it; if it says it could not verify Kiln, open System Settings > Privacy & Security and choose Open Anyway."

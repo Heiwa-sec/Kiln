@@ -50,13 +50,13 @@ Not supported, and shown as unsupported rather than faked: slides, XLSX/ODS, EPU
 
 ## Install
 
-Paste this in Terminal. It downloads the latest release, checks its checksum, puts Kiln.app in Applications and opens it:
+Paste this in Terminal. It downloads the latest release, checks its checksum and puts Kiln.app in Applications. macOS then shows its usual check for apps downloaded from the internet when Kiln first opens:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/Heiwa-sec/Kiln/main/scripts/install.sh | bash
 ```
 
-Run it again to update. To remove Kiln, quit it from the menu bar and delete `/Applications/Kiln.app`. You can also download `Kiln.zip` from the Releases page; because the app is not notarized, macOS will then ask you to allow it in System Settings, which the one-line install avoids.
+Run it again to update. To remove Kiln, quit it from the menu bar and delete `/Applications/Kiln.app`. You can also download `Kiln.zip` from the Releases page. Because the app is not notarized, macOS says it could not verify Kiln (either way): open System Settings, Privacy & Security, and choose Open Anyway once.
 
 ## Requirements
 
